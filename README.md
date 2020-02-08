@@ -13,7 +13,7 @@ Das System besteht aus folgenden Komponenten:
 
   * **GamepadTx** (GPapp.py, GPcfg.py) [./sw/GamepadTx](./sw/GamepadTx)
     * Raspberry Pi wandelt die Ausgaben eines Gamepads (USB) in kompatible UDP Telegramme um. Die internen Zustände des Gamepads lassen sich mit einer Smartphone App visualisieren. 
-  * **GPSCreen** (GPScreen.pde) [./sw/GPSCreen](./sw/GPSCreen)
+  * **GPSCreen** (GPScreen.pde) [./sw/GPScreen](./sw/GPScreen)
     * Diese Smartphone App empfängt UDP-Telegramme vom GampadTx und visualisiert 
 interne Zustände.
   * **PhoneTx** (PhoneTx.pde, Config.pde) [./sw/PhoneTx](./sw/PhoneTx)
@@ -33,8 +33,8 @@ Konfigurationsmöglichkeiten:
 |:--:|:-----:|:----:|:----:|:----:|
 | PiRx|PhoneTx| --|  PhoneTx | ca. 25 m |
 | PiRx|PhoneTx| --|  Router mit ext. Ant. | ca. 100 m |
-| PiRx|GamepadTx| GPSCreen| GPSCreen | ca. 25 m |
-| PiRx|GamepadTX| [GPSCreen]|  Router mit ext. Ant. | ca. 100 m |
+| PiRx|GamepadTx| GPScreen| GPScreen | ca. 25 m |
+| PiRx|GamepadTX| [GPScreen]|  Router mit ext. Ant. | ca. 100 m |
 
 Bei Verwendung eines Raspberry Pi mit externem Wifi-Modul, das eine externe Antenne nutzt, kann mit dem Router eine Reichweite von bis zu 400 m erreicht werden. 
 
@@ -53,7 +53,7 @@ The system consists of the following components:
 
   *  **GamepadTx** (GPapp.py, GPcfg.py) [./sw/GamepadTx](./sw/GamepadTx)
     * Raspberry Pi converts the output of a gamepad (USB) into compatible UDP telegrams. The internal states of the gamepad can be visualized with a smartphone app. 
-  * **GPSCreen** (GPScreen.pde) [./sw/GPSCreen](./sw/GPSCreen)
+  * **GPSCreen** (GPScreen.pde) [./sw/GPScreen](./sw/GPScreen)
     * This smartphone app receives UDP telegrams from the GampadTx and visualizes 
 internal states.
   * **PhoneTx** (PhoneTx.pde, Config.pde) [./sw/PhoneTx](./sw/PhoneTx)
@@ -71,8 +71,8 @@ Configuration options:
 |:--:|:-----:|:----:|:----:|:----:|
 | PiRx|PhoneTx| --| PhoneTx || about 25 meters ||
 | PiRx|PhoneTx| --| Router with ext. ant. | about 100 m |
-| PiRx|GamepadTx| GPSCreen| GPSCreen | about 25 m |
-| PiRx|GamepadTX| [GPSCreen]| Router with ext. ant. | about 100 m |
+| PiRx|GamepadTx| GPScreen| GPScreen | about 25 m |
+| PiRx|GamepadTX| [GPScreen]| Router with ext. ant. | about 100 m |
 
 When using a Raspberry Pi with an external Wifi module using an external antenna, a router can achieve a range of up to 400m. 
 
