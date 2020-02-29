@@ -28,8 +28,9 @@ SERVO, DIO, L298 = range(3)
 
 '''
 Parameter for channel configuration 
-(MODE, CENTER, RATE, REVERSE, ACCFILT, FAILSAFE, STEPW)
+(MODE, CHANNEL, CENTER, RATE, REVERSE, ACCFILT, FAILSAFE, STEPW)
 MODE = SERVO, DIO or L298
+CHANNEL = 0..15
 CENTER = center position of servo in ms
 RATE = max. diviation from center in ms 
 REVERSE = boolean reverse orientation 
@@ -40,16 +41,16 @@ STEPW = max. steps af rate within of cycle rate of 20 ms used by the filter
 
 models = {
     'TESTBED' : [(SERVO, 0, 1.4, 0.4, False, True, 127, 10), 
-                 (SERVO, 4, 1.5, 0.3, False, False, 127, 127),
-                 (DIO, 5, 1.5, 0.5, False, False, 0, 127)],
+                 (SERVO, 3, 1.5, 0.3, False, False, 127, 127),
+                 (DIO, 2, 1.5, 0.5, False, False, 0, 127)],
 
      'MyCar'  : [(SERVO, 0, 1.5, 0.5, True, True, 127, 10), 
-                 (SERVO, 4, 1.5, 0.2, False, False, 127, 127)],
+                 (SERVO, 3, 1.5, 0.2, False, False, 127, 127)],
                 
      'CASPARCAR': [(L298, 0, 1.5, 0.5, False, False, 127, 127), 
-                  (SERVO,4, 1.5, 0.25, True, False, 127, 127),
-                  (DIO, 3, 1.5, 0.5, True, False, 0, 127),
-                  (DIO, 6, 1.5, 0.5, True, False, 254, 127)] }
+                  (SERVO,3, 1.5, 0.25, True, False, 127, 127),
+                  (DIO, 1, 1.5, 0.5, True, False, 0, 127),
+                  (DIO, 2, 1.5, 0.5, True, False, 254, 127)] }
   
 MODEL = 'TESTBED'
 ID = "RC#001"

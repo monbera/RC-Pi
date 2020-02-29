@@ -38,11 +38,11 @@ void setup()
   textFont(F, int(height * 0.04));
   // Start adaptation required - used objects
   L1 = new Lever (int(width*0.25), int(height*0.2), int(height*0.8), int (50), 0);
-  L2 = new LeverT (int(height*0.5), int(width*0.55), int(width*0.9), int (50), 4);
+  L2 = new LeverT (int(height*0.5), int(width*0.55), int(width*0.9), int (50), 3);
   T1 = new Trim(int(width * 0.09), int(height * 0.5), "P", 0);
-  T2 = new Trim(int(width * 0.72), int(height * 0.8), "L", 4);
+  T2 = new Trim(int(width * 0.72), int(height * 0.8), "L", 3);
   SApp = new SwitchApp(int(height * 0.04), int(width * 0.7), int(height * 0.15), 15, 100, 0, 254); 
-  SLight = new Switch(int(height * 0.04), int(width * 0.6), int(height * 0.15), 3, 255, 0, 254); 
+  SLight = new Switch(int(height * 0.04), int(width * 0.6), int(height * 0.15), 2, 255, 0, 254); 
   STh = new SwitchTh(int(height * 0.04), int(width * 0.5), int(height * 0.15), 0, 105, 50, 100);
   SDp = new SwitchDp(int(height * 0.04), int(width * 0.4), int(height * 0.15), 0, 105, 50, 100);
   // End adaptation 
@@ -229,7 +229,9 @@ void receive(byte[] data)
   String message = new String( data );
   println(message);
   String[] parts = split(message, "@");
-  AnalogVal = (parts[2]);
+  if (parts.length == 3) {
+    AnalogVal = (parts[2]);
+  }
   String[] ip_parts = split(parts[1], ".");
   // checking wether it is probably a IP adress
   if ((int(ip_parts[0])==192) && (int(ip_parts[1])==168))

@@ -63,7 +63,7 @@ internal states.
 A slightly more detailed guide can be found in the [./doc](./doc) directory.
 
 Direct questions about the software are answered at monbera[at]posteo.de.
-General questions about Raspberry Pi and the installation are not answered, because there are enough tutorialsare available on the network.
+General questions about Raspberry Pi and the installation are not answered, because there are enough tutorials available on the network.
 
 Configuration options:
 

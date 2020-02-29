@@ -15,8 +15,8 @@ UDP udp;
 Indicator IRC;
 Indicator IGP; 
 SensVal Voltage;
-ChannelIndicator CH0;
-ChannelIndicator CH4;
+ChannelIndicator CHT;
+ChannelIndicator CHS;
 TrimmL TST;
 
 PFont F;
@@ -36,11 +36,11 @@ String rcip     = "_._._._";
 /* Telegram to the RSCreen (Remote SCREEN) strings, seperated by "," 
 
   V[0] = HDR (255)  
-  V[1] = Dual Rate Channel 0
+  V[1] = Dual Rate Channel Speed
   V[2] = Trimm Channel 0
   V[3] = Value Channel 0
-  V[4] = Dual Rate Channel 4
-  V[5] = Trimm Channel 4
+  V[4] = Dual Rate Channel Steering
+  V[5] = Trimm Channel Steering
   V[6] = Com Status RC (0 = default, 1 connect, 2 = lost) 
   ----------------Data of the receiver, forwarded to the Remote SCREEN-----
   V[7] = Voltage of RC accu nn.nn
@@ -50,8 +50,8 @@ int [] GPdata = new int [GPdataLen];
 
 void setup()
 {
-  size(800,400);
-  //fullScreen();
+  //size(800,400);
+  fullScreen();
   orientation(LANDSCAPE); 
   background (#353250);
   F = createFont("Arial", 14, true); 
@@ -67,8 +67,8 @@ void setup()
   IRC  = new Indicator(0.085, "RC");
   IGP  = new Indicator(0.18, "GP");
   Voltage = new SensVal(0.9, 0.13);
-  CH0 = new ChannelIndicator(0.32, 25, "TH", "0");
-  CH4 = new ChannelIndicator(0.52, 25, "ST", "4");
+  CHT = new ChannelIndicator(0.32, 25, "TH", "0");
+  CHS = new ChannelIndicator(0.52, 25, "ST", "3");
   TST = new TrimmL(0.7, 0.5);
   /* 
   RCR: RC Receiver Rpi
@@ -90,8 +90,8 @@ void draw()
   raster();
   IRC.display(GPdata[6], rcip);  
   IGP.display(com_stat_gp, ip);
-  CH0.display(GPdata[1]);
-  CH4.display(GPdata[4]);
+  CHT.display(GPdata[1]);
+  CHS.display(GPdata[4]);
   TST.display(GPdata[5]);
   //Voltage.display(str(GPdata[7]) + str(GPdata[8]));
   Voltage.display(V_Sensor);

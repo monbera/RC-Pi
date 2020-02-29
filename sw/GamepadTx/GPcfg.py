@@ -42,11 +42,11 @@ else:
   
 # {eventcode : [channel, invert, dual rate ],....}
 analogEvent = {1 : [0, True, False, -128, 127], 
-               5 : [4, False, False, -128, 127]}
+               5 : [3, False, False, -128, 127]}
 # {eventcode : (channel, increment),....}
 trimEvent = {304 : [0, -1], 
-             305 : [4, -1],  
-             306 : [4, 1], 
+             305 : [3, -1],  
+             306 : [3, 1], 
              307 : [0, 1]}
 # {eventcode : reference to event code of analog events }  (Dualrate buttons)
 duraEvent = {308 : 1, 

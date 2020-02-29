@@ -113,9 +113,11 @@ def configure_channel(mod, chan,  center, rate, reverse=False, \
         for i in range(255):                 
             imp_tab[chan][i] = PcaVal(chan, i)        
 
+first = False
+
 def acc_filter(chan, inp): 
     """ Decrease the input rise rate for an channel"""
-    global GlobData
+    global GlobData, first
     da = Conf[chan][STEPW]
     centerpos = Conf[chan][FAILSAFE]
     def clamp(n, minn, maxn):
@@ -126,6 +128,9 @@ def acc_filter(chan, inp):
         else:
             return n
     an = GlobData[chan][LASTVAL]
+    if first: 
+        an = inp
+        first = False
     if ((inp > centerpos) and (inp > (an + da))): 
         cout = an + da   
     elif ((inp < centerpos) and (inp < (an - da))): 

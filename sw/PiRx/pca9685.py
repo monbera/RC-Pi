@@ -80,7 +80,7 @@ def software_reset():
 
 def set_pwm_freq(hz):
     """Set the PWM frequency to the provided value in hertz."""
-    prescale = int( round (25000000 / (4096 * hz)))
+    prescale = int( round (25000000 / (4096 * hz)) - 1)
     oldmode = bus.read_byte_data(PCA9685_ADDR, MODE1);
     newmode = (oldmode & 0x7F) | SLEEP
     bus.write_byte_data(PCA9685_ADDR, MODE1, newmode)

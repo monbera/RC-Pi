@@ -35,8 +35,8 @@ First check the gamepad configuration with
     V[1] = Dual Rate Channel 0  (DR)
     V[2] = Trimm Channel 0
     V[3] = Mode Channel 0
-    V[4] = Dual Rate Channel 4  (DR)
-    V[5] = Trimm Channel 4
+    V[4] = Dual Rate Channel 3  (DR)
+    V[5] = Trimm Channel 3
     V[6] = Com Status (0 = default, 1 connect, 2 = lost)
     ----------------Data of the receiver, forwarded to the Remote SCREEN-----
     V[7] = Voltage of RC accu nn.nn
@@ -73,7 +73,7 @@ screen_dat = [255, 100, 25, 0, 100, 25, 0]
 lenTel = len(screen_dat)
 # screen_tel indexes
 # COS Status (0 = default, 1 connect, 2 = lost)
-HDR, DR0, TR0, V0, DR4, TR4, COS = range(lenTel)
+HDR, DR0, TR0, V0, DRS, TRS, COS = range(lenTel)
 # default contro vaues for 16 channes
 contr_dat = [127, 127, 127, 127, 127, 127, 127, 127, \
                  127, 127, 127, 127, 127, 127, 127, 127]
@@ -161,11 +161,11 @@ def update_data():
                     screen_dat[DR0] = 50                           
                 else:
                     screen_dat[DR0] = 100
-            if ch == 4:
+            if ch == 3:
                 if GPcfg.analogEvent[drev][DR]: 
-                    screen_dat[DR4] = 50 
+                    screen_dat[DRS] = 50 
                 else:
-                    screen_dat[DR4] = 100
+                    screen_dat[DRS] = 100
 
 # Creation of the comma separated strings for the telegram    
 def Trimm_update():   
@@ -175,8 +175,8 @@ def Trimm_update():
         ch = GPcfg.analogEvent[event][0]
         val = trim_dat[ch] 
         tel = tel + "127," + str(ch) + "," + str(val) + ","
-        if ch == 4:
-            screen_dat[TR4] = val     
+        if ch == 3:
+            screen_dat[TRS] = val     
     return tel    
 
 def Control_update():
