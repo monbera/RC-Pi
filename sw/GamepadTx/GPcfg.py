@@ -29,7 +29,6 @@ GP_Conf = { 0L: [0L, 1L, 3L, 4L],
 gamepad_addr = "", 6000
 receiver_port = 6100
 screen_port = 5000   
-
 PC = False  # running for test and integration on a PC
 
 if not PC:
@@ -38,7 +37,7 @@ if not PC:
 else:
     ifname = "wlp2s0"
     # event number has to be configured
-    USB_event = '/dev/input/event9'
+    USB_event = '/dev/input/event10'
   
 # {eventcode : [channel, invert, dual rate ],....}
 analogEvent = {1 : [0, True, False, -128, 127], 
@@ -57,12 +56,14 @@ shutdEvent = 312
 eventlist = (304, 305, 306, 307, 308, 310, 312)    
 minAnaVal = -128 
     
-# helper function to check the USB-dev event
-# unplug gamepad
-# call the script manually > python3 GPcfg.py
-# plug in gamepad when the message has been emitted
-# the event will be emitted   
+
 def searchGP():
+    ''' helper function to check the USB-dev event
+    unplug gamepad
+    call the script manually > python3 GPcfg.py
+    plug in gamepad when the message has been emitted
+    the event will be emitted     
+    '''
     lsWoutGP = set((listdir('/dev/input/')))
     print ("Stecke Gamepad an")
     sleep(10)

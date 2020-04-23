@@ -23,8 +23,8 @@ import rccfg
 # queue that is used for communication between the observer thread -reading 
 # sensor data and the UDP-Client class that transmits the data 
 # to the transmitter 
-q = queue.LifoQueue(100)
-q_sense = queue.LifoQueue(20)
+q_time = queue.LifoQueue(20)
+q_Udp_to_OBS = queue.Queue(20)
  
 def get_ip_address(ifname):
     try:
@@ -36,6 +36,20 @@ def get_bc_address(ifname):
     ip = get_ip_address(ifname).split('.')
     bcip = ip[0] + '.' + ip[1] + '.' + ip[2] + '.' + '255'
     return bcip
+
+def bytostr(inp):
+    '''Converts an integer < 256 into a coded string'''
+    if (inp < 256):
+        h = inp // 16     
+        l = inp % 16  
+        return (lockup[h]) + (lockup[l])
+    else:
+        return "00"
+
+def strtobyte (codstr): 
+    if (len(codstr) == 2):
+        return (ord(codstr[0])-48)*16 + (ord(codstr[1])-48)
+    else: return -1
                
 # Elements of of configuration
 MODE, CENTER, RATE, REVERSE, ACCFILT, FAILSAFE, STEPW, CENTER_TR = range(8) 
@@ -48,16 +62,19 @@ GlobData = []
 # table for inputs to be reversed 
 revVal = []
 imp_tab = []   
+lockup = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9",
+                       ":", ";", "<", "=", ">", "?"]
     
 def CtrData_init():
+    '''Init the Globdata with the default center position 
+    Filling the channel impulse tab   
+    '''
     global Conf, GlobData, revVal, imp_tab
     for  i in range (16):
         Conf.append([rccfg.SERVO, 1.5, 0.5, False, False, 127, 127, 1.5]) 
-        # init the Globdata with the default center position 
         GlobData.append([127]) 
     for i in range (255):
-        revVal.append(254 - i)
-    #filling the channel impulse tab   
+        revVal.append(254 - i) 
     for c in range (16):
             tab = [] 
             for i in range(255):                 
@@ -163,6 +180,8 @@ def trimm_Chan(chan, trimm):
     """ 
     global Conf, imp_tab
     center = Conf[chan][CENTER]
+    if Conf[chan][REVERSE]:
+        trimm = 50 - trimm
     Conf[chan][CENTER_TR] = round(((center * (trimm - 25)/254) + center),3)
     for i in range(255):                 
         imp_tab[chan][i] = PcaVal(chan, i)
@@ -182,8 +201,8 @@ def update(msg):
     hdr = 100 : update_app | hdr = 127 : trimming |hdr = 255 : servo values            
     """
     # forward the current time to the observer queue
-    if not q.full(): 
-        q.put(time(), block=False)
+    if not q_time.full(): 
+        q_time.put(time(), block=False)
     cntloop = len(msg)//3
     i = 0
     for i in range(cntloop):
@@ -195,82 +214,104 @@ def update(msg):
             if (hdr == 127):
                 trimm_Chan(msg[y+1], msg[y+2])
             elif (hdr == 100):
-                shutdown_rx(msg[y+1], msg[y+2])        
-
+                shutdown_rx(msg[y+1], msg[y+2])                
+                
 def Observer_loop():  
+    print("Observer running")
     sensetime = time()
     sleep(5.0)
-    print("Observer running")
+    aval = str(rccfg.AVAL)
+    bc_data = tel_tx()
+    port_tx = rccfg.port_tx   
+    tx_address = (get_bc_address(rccfg.ifname), port_tx)
     observed_time= time()
     temp = time()
+    
     while True:                    
-        if (not q.empty()):
-            observed_time = q.get()  # last time entry
-        while (not q.empty()):
-            temp = q.get()                   
+        if (not q_time.empty()):
+            observed_time = q_time.get()  # last time entry
+        while (not q_time.empty()):
+            temp = q_time.get()  
+        if (not q_Udp_to_OBS.empty()):
+            ID, ip = q_Udp_to_OBS.get()
+            if (ID == 2) :
+                tx_address = (ip, port_tx)
+                #print ("TX IP", ip) 
+                
         if ((time() - observed_time) > 1.5):
             fail_safe()
-            print('Timeout -> Fail Save')
-
-        # sensor telegram         
-        if (((time() - sensetime) > 2.0) and rccfg.ADS):
-            aval = ads.read_adc()
-            aval = str(ads.convert_to_V(aval, ads.EXGAIN))
-            # write the coded values to the queue
-            if (not q_sense.full()): 
-                q_sense.put([aval], block=False)
+            #print('Timeout -> Fail Save')
+ 
+        # sensor telegram            
+        if (((time() - sensetime) > 2.0)): 
+            aval = str(rccfg.AVAL)
+            if rccfg.ADS:
+                aval = ads.read_adc()
+                aval = str(ads.convert_to_V(aval, ads.EXGAIN))
+            databc = (bc_data + strfltotel(aval) + chr(13)).encode('utf-8')
+            try:
+                if sock.sendto(databc, tx_address) == 0: 
+                    print('No data sent')
+            except:
+                print ("Network not available")
             sensetime = time()                        
         sleep(0.2)      
             
 def decode_Tel(strtel):
-    tel = strtel.split(',')
-    tel.pop()
-    for i in range(len(tel)):
-        tel[i] = int(tel[i])
-    return tel      
+    '''Decodes the incommimg control telegram and fills an array '''
+    l = len(strtel)
+    maxi = int(l / 2) - 2
+    tel = [0] * maxi
+    if (((ord(strtel[1])-48)*16 + (ord(strtel[2])-48)) == 2):
+        for i in range (maxi):
+            ti = i*2 + 3
+            tel[i] = (ord(strtel[ti])-48)*16 + (ord(strtel[ti + 1])-48)
+    return tel 
+
+def tel_tx():
+    """Creates the string coded telegram including the owne IP
+    for transmitting back to the transmitter
+    """
+    tel = ""
+    ip = get_ip_address(rccfg.ifname).split('.')    
+    tel = chr(2) + "01"
+    for i in range (len(ip)):
+        tel = tel + bytostr(int(ip[i]))
+    return tel  
+
+def strfltotel(sense):
+    '''Converts a string float value into coded string
+    '''
+    senli = (sense).split('.')
+    tel = bytostr(int(senli[0])) + bytostr(int(senli[1]))
+    return tel
 
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 sock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1) 
 
 def UDP_run():  
-    port_tx = rccfg.port_tx
-    aval = rccfg.AVAL
-    bcTime = time()
-    sent = 0
-    tmp =''     
-    tx_address = (get_bc_address(rccfg.ifname), rccfg.port_tx)
-    print ("Start UDP")
-    bc_data = (rccfg.ID + '@' + get_ip_address(rccfg.ifname)).encode('utf-8')   
-    sock.bind(('', rccfg.port_rx))    
-    for i in range(10):
-         sent = sock.sendto(bc_data + \
-             ("@" + aval).encode('utf-8'), tx_address)  
-         sleep(0.1)
-    
+    print ("Start UDP ")
+    sock.bind(('', rccfg.port_rx))  
+    Tel_ID, ip = range(2)
+    UDOtoOBS = [0, ""]
+    quetime = time()
     while True:
-        if ((time() - bcTime) > 1.0):
-            bcTime = time()
-            if (not q_sense.empty()):
-                a = q_sense.get()
-                aval = a[0]  # last analog value                      
-            while (not q_sense.empty()):
-                tmp = q_sense.get()
-            try: 
-                pass
-                databc = (bc_data + ("@" + aval).encode('utf-8')) 
-                if sock.sendto(databc, tx_address) == 0: 
-                    print('No data sent')                        
-            except:
-                print ("Network not available")
-                
-        data, address = sock.recvfrom(1024)
+        data, address = sock.recvfrom(1024)       
         data = data.decode('utf-8')
         if data:
+            if (strtobyte(data[1:3]) == 2): 
+                UDOtoOBS[Tel_ID] = 2
+                UDOtoOBS[ip] = address[0]
+            # deliver the Tx ip to the Observer Loop
+            if (((time() - quetime) > 2.0)): 
+                if not q_Udp_to_OBS.full():
+                    q_Udp_to_OBS.put(UDOtoOBS, block=False)   
+                else:
+                    print("UDP2OBS que full")
+                quetime = time()
             try:
-                msg = decode_Tel(data)
-                # use the real address of transmitter 
-                tx_address = (address[0], port_tx)
-                print (msg , 'to', tx_address)
+                msg = decode_Tel(data) 
+                #print (msg)
                 update(msg)
             except:
                 msg = []                                      

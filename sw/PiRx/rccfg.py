@@ -11,8 +11,8 @@
 # Copyright:   (c) Bernd Hinze 2020 
 # Licence:     MIT see https://opensource.org/licenses/MIT
 # ---------------------------------------------------------------------------- 
-ADS = True      # configure either the ADS1115 Board is available or not
-AVAL = "0.00"    # default value for analog input
+ADS = False       # configure either the ADS1115 Board is available or not
+AVAL = 0.0       # default value for analog input
 SIM = False      # running for test and integration on a PC
 # PCA9685 Parameter
 FREQ = 50.0 
@@ -40,20 +40,22 @@ STEPW = max. steps af rate within of cycle rate of 20 ms used by the filter
 '''
 
 models = {
-    'TESTBED' : [(SERVO, 0, 1.4, 0.4, False, True, 127, 10), 
+    'TESTBED' : [(SERVO, 0, 1.5, 0.5, False, True, 127, 10), 
                  (SERVO, 3, 1.5, 0.3, False, False, 127, 127),
                  (DIO, 2, 1.5, 0.5, False, False, 0, 127)],
 
      'MyCar'  : [(SERVO, 0, 1.5, 0.5, True, True, 127, 10), 
                  (SERVO, 3, 1.5, 0.2, False, False, 127, 127)],
+    
+     'MyBoat'  : [(SERVO, 0, 1.5, 0.5, False, True, 127, 10), 
+                 (SERVO, 3, 1.5, 0.45, True, False, 127, 127)],
                 
      'CASPARCAR': [(L298, 0, 1.5, 0.5, False, False, 127, 127), 
                   (SERVO,3, 1.5, 0.25, True, False, 127, 127),
                   (DIO, 1, 1.5, 0.5, True, False, 0, 127),
                   (DIO, 2, 1.5, 0.5, True, False, 254, 127)] }
   
-MODEL = 'TESTBED'
-ID = "RC#001"
+MODEL = 'MyBoat'
 
    
 def main():

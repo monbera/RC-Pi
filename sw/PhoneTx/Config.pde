@@ -73,7 +73,7 @@ void touchStarted()
     if (T1.overT())
     { 
       //println (T1.getSval());
-      if (udp.send(T1.getSval(), ip, port) == false)
+      if (udp.send(STX + T1.getSval() + CR, ip, port) == false)
       {
         ICom.set_err_state(ERR_UDP);
       }
@@ -81,14 +81,14 @@ void touchStarted()
     if (T2.overT())
     {
       //println (T2.getSval());
-      if (udp.send(T2.getSval(), ip, port) == false)
+      if (udp.send(STX + T2.getSval() + CR, ip, port) == false)
       {
         ICom.set_err_state(ERR_UDP);
       }
     }
     if (SApp.overS())
     {
-      if (udp.send(SApp.getSval(), ip, port) == false)
+      if (udp.send(STX + SApp.getSval() + CR, ip, port) == false)
       {
         ICom.set_err_state(ERR_UDP);
       }
@@ -100,7 +100,7 @@ void touchStarted()
 
   if (SLight.overS())
     {
-      if (udp.send(SLight.getSval(), ip, port) == false)
+      if (udp.send(STX + SLight.getSval() + CR, ip, port) == false)
       {
         ICom.set_err_state(ERR_UDP);
       }

@@ -1,13 +1,12 @@
-# RC-Pi Funkfernsteuerung für Modellbau
+# RC-Pi Funkfernsteuerung für Modellbau R2.0
 Die Software 'TelDaControl' <https://github.com/monbera/TelDaControl>, wurde grundlegend überarbeitet und um einen optionalen Gamepad Controller erweitert. Die wesentlichen Änderungen sind:
 
-  *  vereinfachte Kodierung des Telegramms (Performance - Faktor 10).
- Nicht kompatible zu 'TelDaControl'!
   *  Vermeidung objektorientierter Programmierung (Performance)
   *  vereinfachte Konfiguration
   *  Steuerung via Gamepad
   *  Rückkanal zur Übertragung der Batteriespannung oder anderer
 analoger Daten des Empfängers
+* Verbessertes Start-Up Verhalten
 
 Das System besteht aus folgenden Komponenten:
 
@@ -39,15 +38,15 @@ Konfigurationsmöglichkeiten:
 Bei Verwendung eines Raspberry Pi mit externem Wifi-Modul, das eine externe Antenne nutzt, kann mit dem Router eine Reichweite von bis zu 400 m erreicht werden. 
 
 
-# RC-Pi Radio Remote Control for Model Making
+# RC-Pi Radio Remote Control for Model Making 2.0
 The software 'TelDaControl' <https://github.com/monbera/TelDaControl>, has been fundamentally revised and extended by an optional gamepad controller. The main changes are:
  
 
-  * Simplified coding of the telegram (performance - factor 10). Not compatible to 'TelDaControl'!
   * Avoidance of object-oriented programming (performance)
   * Simplified configuration
-  * Control via gamepad
+  * Remote control via gamepad
   * Return channel for transmitting the battery voltage or other analogue data of the receiver
+  * Improvement of start up behaviour
 
 The system consists of the following components:
 

@@ -4,7 +4,7 @@
                  
  Author:      Bernd Hinze
  
- Created:     16.01.2020
+ Created:     30.02.2020
  Copyright:   (c) Bernd Hinze 2020
  Licence:     MIT see https://opensource.org/licenses/MIT
  ------------------------------------------------------------------------------
@@ -29,6 +29,9 @@ String AnalogVal = " 0.00";  // visualisation of battey valtage of the receiver
 int port        = 6100;    // the destination port
 int tms_received = millis();
 int tms_received_tout = 5 * 1000; // 5s
+String STX = char(2) + "02"; // STX + Telegramm ID = 2
+char CR = char(13);
+String [] CodeTable  =  {"0", "1", "2", "3", "4", "5", "6", "7", "8", "9", ":", ";", "<", "=", ">", "?"};
 
 void setup()
 {
@@ -75,9 +78,9 @@ void draw()
   {
     try {
       // Start adaptation required
-      udp.send(L1.getVal(L1.py) + L2.getVal(L2.px), ip, port);
+      udp.send(STX + L1.getVal(L1.py) + L2.getVal(L2.px) + CR, ip, port);
       // End Adaptation required
-      //println(L1.getVal(L1.py) + L2.getVal(L2.px), ip, port);
+      //println(STX + L1.getVal(L1.py) + L2.getVal(L2.px) + CR, ip, port);
     }
     catch (Exception e) {
     }
@@ -220,25 +223,36 @@ class Indicator
  That is the default method of the UDP library for listening. The receiver transmits 
  cyclic every second the following string decoded to the Application: "ID@IP". 
  Example "RC#001@192.168.43.3,7.22". It will be splitted and checked whether it is an IP 
-            ID,        IP,   analog value
+ ID,        IP,   analog value
  from an local network. The variable 'ip_received' and the timestamp is set.
  ------------------------------------------------------------------------------------  
  */
-void receive(byte[] data)
-{  
-  String message = new String( data );
-  println(message);
-  String[] parts = split(message, "@");
-  if (parts.length == 3) {
-    AnalogVal = (parts[2]);
-  }
-  String[] ip_parts = split(parts[1], ".");
-  // checking wether it is probably a IP adress
-  if ((int(ip_parts[0])==192) && (int(ip_parts[1])==168))
-  {
-    ip = parts[1];
+
+String int2str(int inp)
+{
+  return (CodeTable[inp /16] + CodeTable[inp %16]);
+}
+
+void receive(byte[] data) {
+  int l = data.length;
+  ip = "";
+  // check telegramm ID
+  if ((((data[1])-48)*16 + ((data[2])-48)) == 1) {  
+    for (int i = 3; i < 8 + 3; i = i+2) {
+      if (i <= 8) {
+        ip = ip + str(((data[i])-48)*16 + ((data[i + 1])-48)) + ".";
+      } else {
+        ip = ip + str(((data[i])-48)*16 + ((data[i + 1])-48));
+      }
+    }
+    // check if sensor data available
+    if (l > (8+3)) {
+      AnalogVal = str(((data[11])-48)*16 + ((data[12])-48)) 
+        + "."
+        + str(((data[13])-48)*16 + ((data[14])-48));
+    }
+    // if Live tel from Rx received 
     ICom.clear_err_state(); 
-    ICom.set_device_name(parts[0]);
     tms_received = millis();
   }
 }
@@ -338,7 +352,7 @@ class Lever
       ValMap [i] = round(map(i, lim_pos_low, lim_pos_high, vpmin, vpmax));
     }
   }
-
+ 
   /**
    Creates the telegramm to transfer coded values for 
    header : 255
@@ -346,7 +360,7 @@ class Lever
    ValMap[setVal]: 0..254
    */
   String getVal(int setVal) {
-    return ( TelPrefix + str(ValMap[setVal])+ "," );
+    return (int2str(255) + int2str(ch) + int2str(ValMap[setVal]));
   }
 }
 
@@ -473,8 +487,9 @@ class Trim
     return result;
   }
 
- String getSval() {
-    return (TelPrefix + str(val) + ",");
+
+  String getSval() {
+    return (int2str(127) + int2str(ichannel) + int2str(val));
   }
 }
 
@@ -546,12 +561,13 @@ class Switch
   {
     if (pSWPos == SWOff)
     {  
-      return (TelPrefix + str(SWvOFF) + ",");
+      return (int2str(SWhdr) + int2str(SWCh) + int2str(0));
     } else
     {
-      return (TelPrefix + str(SWvON) + ",");
+      return (int2str(SWhdr) + int2str(SWCh) + int2str(254));
     }
   }
+
 
   int getIval()
   {
