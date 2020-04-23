@@ -1,4 +1,7 @@
 # RC-Pi Funkfernsteuerung für Modellbau R2.0
+
+![Sender](./pic/GP_Uebersicht.png)![Empfänger im Model](./pic/Boot_0.png)
+
 Die Software 'TelDaControl' <https://github.com/monbera/TelDaControl>, wurde grundlegend überarbeitet und um einen optionalen Gamepad Controller erweitert. Die wesentlichen Änderungen sind:
 
   *  Vermeidung objektorientierter Programmierung (Performance)
