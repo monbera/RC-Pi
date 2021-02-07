@@ -4,7 +4,7 @@
  The code is the same for PC and Android    
  Author:      Bernd Hinze
  
- Created:     30.02.2020
+ Created:     30.05.2020
  Copyright:   (c) Bernd Hinze 2020
  Licence:     MIT see https://opensource.org/licenses/MIT
  ------------------------------------------------------------------------------
@@ -18,6 +18,7 @@ SensVal Voltage;
 ChannelIndicator CHT;
 ChannelIndicator CHS;
 TrimmL TST;
+TrimmL TTH;
 
 PFont F;
 
@@ -58,6 +59,7 @@ void setup()
   CHT = new ChannelIndicator(0.32, 25, "TH", "0");
   CHS = new ChannelIndicator(0.52, 25, "ST", "3");
   TST = new TrimmL(0.7, 0.5);
+  TTH = new TrimmL(0.7, 0.7);
 
   udp = new UDP (this, 5000);
   udp.listen( true );
@@ -86,6 +88,7 @@ void draw()
   }
   if ((millis() - ms_received) > (ms_received_tout)) { 
     com_stat_gp = 0;
+    // Status TX - RX
     GPdata[5] = 0;
   }
 }
@@ -165,11 +168,10 @@ class SensVal
     // text output
   }
   void display(int v1, int v2) {
-    volt = (v1 + float(v2)/100.0);
-    if (volt == 0.0) {
+    if (v1 == 0) {
       val = "__.__ V";
     } else {
-      val = str(volt) + " V";
+      val = str(v1)+ "." + str(v2) + " V";
     }         
     fill(255);
     text(val, tx, ty);

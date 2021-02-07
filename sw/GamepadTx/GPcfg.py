@@ -54,7 +54,8 @@ duraEvent = {308 : 1,
 shutdEvent = 312  
 # eventlist for button events
 eventlist = (304, 305, 306, 307, 308, 310, 312)    
-minAnaVal = -128 
+minAnaVal = -128
+DualRate  = 70 
     
 
 def searchGP():

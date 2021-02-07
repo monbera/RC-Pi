@@ -86,6 +86,7 @@ trim_dat = [25 , 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25]
 dict_ValCorr = {}
 lockup = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9",
                        ":", ";", "<", "=", ">", "?"]
+CENTER = 127
 # -----------  End Global data definition ----------------------
                 
 def update_data():
@@ -124,12 +125,12 @@ def update_data():
             ch = GPcfg.analogEvent[drev][0]
             if ch == 0:
                 if GPcfg.analogEvent[drev][DR]: 
-                    screen_dat[START+1] = 50                           
+                    screen_dat[START+1] = GPcfg.DualRate                           
                 else:
                     screen_dat[START+1] = 100
             if ch == 3:
                 if GPcfg.analogEvent[drev][DR]: 
-                    screen_dat[START+5] = 50 
+                    screen_dat[START+5] = GPcfg.DualRate 
                 else:
                     screen_dat[START+5] = 100   
 
@@ -151,7 +152,7 @@ def Control_update():
         ch = GPcfg.analogEvent[event][CH]
         val = contr_dat[ch] 
         if GPcfg.analogEvent[event][DR] == True:
-                val = ((val - 127) // 2) + 127              
+            val = CENTER + round((val - CENTER) * GPcfg.DualRate / 100)
         tel = tel + "??" + bytostr(ch) + bytostr(val)               
     return tel
    
@@ -264,9 +265,10 @@ def UDP_run():
                 t_screen_sent = mess_to_screen(screen_ip, screen_port, rx_ip)
             except:
                 print("Failed data telegram to sreen") 
-                
+       
         update_data()              
-        mess_to_receiver(rx_ip, rx_port)                  
+        mess_to_receiver(bc_ip, rx_port)  
+        t_rx_sent = time()
         sleep(0.03)    
         
     # shutdown cmd by pressing shutdown button    
@@ -307,7 +309,7 @@ def Observer_loop():
             observer_dat[0] = RED
         if not q_observer.full(): 
                 q_observer.put(observer_dat, block=False)                      
-        sleep(0.1)      
+        sleep(0.5)      
 
 def create_ValCorr(): 
     ''' Creates tables for each event that results from the GP range output
@@ -334,7 +336,7 @@ gamepad = InputDevice(GPcfg.USB_event)
 
 def GP_loop(): 
     print('GP_loop running')
-    sleep(3)
+    #sleep(3)
     for event in gamepad.read_loop():
         if (event.code in GPcfg.analogEvent):            
             if (not q_aloop.full()):               
@@ -350,12 +352,12 @@ def GP_loop():
                print('q_eloop full')
 
      
-def main():       
+def main():  
+    sleep(5) 
     while (get_ip_address(GPcfg.ifname) == "127.0.0.0"):
          print ("waiting for networking")
-         sleep(1)  
-    sleep(1)
-    print(gamepad.capabilities())   
+         sleep(1)      
+    #print(gamepad.capabilities())   
     create_ValCorr()  
     Thread(target = GP_loop).start()
     Thread(target = Observer_loop).start()
